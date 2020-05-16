@@ -323,7 +323,7 @@ class DataSetFactory extends BaseFactory
         $result = new \stdClass();
         $result->entries = [];
         $result->number = 0;
-        
+
         // Getting all dependant values if needed
         // just an empty array if we don't have a dependent
         $values = [
@@ -335,7 +335,7 @@ class DataSetFactory extends BaseFactory
 
             $values = $dependant->getData();
         }
-        
+
         // Fetching data for every field in the dependant dataSet
         foreach ($values as $options) {
             // Make some request params to provide to the HTTP client
@@ -483,13 +483,13 @@ class DataSetFactory extends BaseFactory
                 throw new InvalidArgumentException(__('Unable to get Data for %s because %s.', $dataSet->dataSet, $requestException->getMessage()), 'dataSetId');
             }
         }
-        
+
         return $result;
     }
 
     /**
      * Replaces all URI/PostData parameters
-     * @param string String to replace {{DATE}}, {{TIME}} and {{COL.xxx}}
+     * @param string String to replace {{DATE}}, {{TIME}} and {{COL.xxx}}, {{PATHDATE}}
      * @param array $values ColumnValues to use on {{COL.xxx}} parts
      * @return string
      */
@@ -502,6 +502,8 @@ class DataSetFactory extends BaseFactory
         $string = str_replace('%7B%7BDATE%7D%7D', date('Y-m-d'), $string);
         $string = str_replace('{{TIME}}', date('H:m:s'), $string);
         $string = str_replace('%7B%7BTIME%7D%7D', date('H:m:s'), $string);
+        $string = str_replace('{{PATHDATE}}', date('d-m-Y'), $string);
+        $string = str_replace('%7B%7BPATHDATE%7D%7D', date('d-m-Y'), $string);
 
         foreach ($values as $k => $v) {
             $string = str_replace('{{COL.' . $k . '}}', urlencode($v), $string);
@@ -541,7 +543,7 @@ class DataSetFactory extends BaseFactory
                 // Process the data root according to its type
                 if (is_array($data)) {
                     // An array of results as the DataRoot
-                    $results->messages[] = 'DataRoot is an array';
+                    $results->messages[] = 'DataRoot is an array das wa de slegers zegt';
 
                     // First process each entry form the remote and try to map the values to the configured columns
                     foreach ($data as $k => $entry) {
@@ -551,6 +553,8 @@ class DataSetFactory extends BaseFactory
                         $results->messages[] = 'Processing ' . $k;
 
                         if (is_array($entry) || is_object($entry)) {
+                          $this->getLog()->debug('Processing array');
+
                             $entries[] = $this->processEntry((array)$entry, $columns);
                         } else {
                             $this->getLog()->error('DataSet ' . $dataSet->dataSet . ' failed: DataRoot ' . $dataSet->dataRoot . ' contains data which is not arrays or objects.');
